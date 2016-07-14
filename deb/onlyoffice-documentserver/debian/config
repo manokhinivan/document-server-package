@@ -20,6 +20,83 @@ apply_connection_string(){
 	fi
 }
 
+get_license_type(){
+  LICENSE_NAME=$1
+  case "$LICENSE_NAME" in
+    "Opensource")
+      LICENSE_TYPE=opensource
+      ;;
+    "Commercial")
+      LICENSE_TYPE=integration
+      ;;
+    *)
+      ;;
+  esac
+}
+
+IS_LICENSE_ACCEPTED=false
+STATE=1
+
+while ! ${IS_LICENSE_ACCEPTED};
+  do
+    case $STATE in
+      0)
+        STATE=1
+        continue
+        ;;
+      1) # choose a license type
+         echo 1 >&2
+        db_get onlyoffice/license-type
+        get_license_type "$RET"
+
+        db_get onlyoffice/${LICENSE_TYPE}-license-acceptance
+        if [ "$RET" = "false" ]; then
+          echo 1.1 >&2
+          db_fset onlyoffice/license-type seen false
+          db_fset onlyoffice/${LICENSE_TYPE}-license-notice seen false
+          db_fset onlyoffice/${LICENSE_TYPE}-license-acceptance seen false
+        fi
+
+         db_input critical onlyoffice/license-type || true
+        ;;
+      2) # license notice
+        echo 2 >&2
+        db_get onlyoffice/license-type
+        get_license_type "$RET"
+
+        db_input critical onlyoffice/${LICENSE_TYPE}-license-notice || true
+        ;;
+     3) # license acception
+        echo 3 >&2
+        db_input critical onlyoffice/${LICENSE_TYPE}-license-acceptance || true
+        ;;
+     4) # show error if license wasn't accepted
+        echo 4 >&2
+        db_get onlyoffice/${LICENSE_TYPE}-license-acceptance
+        if [ "$RET" = "true" ]; then
+          IS_LICENSE_ACCEPTED=true
+          break
+        fi
+
+        db_input critical onlyoffice/${LICENSE_TYPE}-license-error || true
+        ;;
+     5) # exit from script
+        echo 5 >&2
+        echo "user did not accept the license" >&2
+        exit 2
+        ;;
+    *)  # unknown state
+        echo "license state unknown: $STATE" >&2
+        exit 2
+    esac
+
+    if db_go; then
+      STATE=$(($STATE + 1))
+    else
+      STATE=$(($STATE - 1))
+    fi
+  done
+
 db_input medium onlyoffice/db-host || true
 db_input medium onlyoffice/db-name || true
 db_input medium onlyoffice/db-user || true

@@ -22,3 +22,51 @@ Type: boolean
 Default: false
 Description: Remove database?
  This operation will remove the database which contain all ONLYOFFICE data. It is recommended to take backup before removing the database.
+
+Template: onlyoffice/license-type
+Type: select
+Default: Opensource
+Choices: Opensource, Commercial
+Description: Select license type
+ You can choose Opensource (AGPL v3) or Commercial license.
+
+Template: onlyoffice/integration-license-notice
+Type: note
+Description: ONLYOFFICE Integration Edition
+ LICENSE AGREEMENT
+ .
+ Put a license text here.
+
+Template: onlyoffice/opensource-license-notice
+Type: note
+Description: AGPL v3
+                      GNU AFFERO GENERAL PUBLIC LICENSE
+                        Version 3, 19 November 2007
+ .
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+ .
+ Put a opensource license here.
+
+Template: onlyoffice/integration-license-acceptance
+Type: boolean
+Default: false
+Description: Do you accept the license agreement terms?
+ In order to install ONLYOFFICE Integration Edition, you must accept the ONLYOFFICE Integration Edition LICENSE AGREEMENT terms. If you decline to accept it, the installation will be canceled.
+
+Template: onlyoffice/opensource-license-acceptance
+Type: boolean
+Default: false
+Description: Do you accept the license agreement terms?
+ In order to install ONLYOFFICE Integration Edition, you must accept the GNU AFFERO GENERAL PUBLIC LICENSE version 3 terms. If you decline to accept it, the installation will be canceled.
+
+Template: onlyoffice/integration-license-error
+Type: error
+Description: Declined ONLYOFFICE Integration Edition LICENSE AGREEMENT
+ If you do not agree to the ONLYOFFICE Integration Edition LICENSE AGREEMENT terms, you cannot proceed with the installation.
+
+Template: onlyoffice/opensource-license-error
+Type: error
+Description: Declined GNU AFFERO GENERAL PUBLIC LICENSE
+ If you do not agree to the GNU AFFERO GENERAL PUBLIC LICENSE terms, you cannot proceed with the installation.
