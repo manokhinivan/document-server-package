@@ -45,13 +45,11 @@ while ! ${IS_LICENSE_ACCEPTED};
         continue
         ;;
       1) # choose a license type
-         echo 1 >&2
         db_get onlyoffice/license-type
         get_license_type "$RET"
 
         db_get onlyoffice/${LICENSE_TYPE}-license-acceptance
         if [ "$RET" = "false" ]; then
-          echo 1.1 >&2
           db_fset onlyoffice/license-type seen false
           db_fset onlyoffice/${LICENSE_TYPE}-license-notice seen false
           db_fset onlyoffice/${LICENSE_TYPE}-license-acceptance seen false
@@ -60,18 +58,15 @@ while ! ${IS_LICENSE_ACCEPTED};
          db_input critical onlyoffice/license-type || true
         ;;
       2) # license notice
-        echo 2 >&2
         db_get onlyoffice/license-type
         get_license_type "$RET"
 
         db_input critical onlyoffice/${LICENSE_TYPE}-license-notice || true
         ;;
      3) # license acception
-        echo 3 >&2
         db_input critical onlyoffice/${LICENSE_TYPE}-license-acceptance || true
         ;;
      4) # show error if license wasn't accepted
-        echo 4 >&2
         db_get onlyoffice/${LICENSE_TYPE}-license-acceptance
         if [ "$RET" = "true" ]; then
           IS_LICENSE_ACCEPTED=true
@@ -81,7 +76,6 @@ while ! ${IS_LICENSE_ACCEPTED};
         db_input critical onlyoffice/${LICENSE_TYPE}-license-error || true
         ;;
      5) # exit from script
-        echo 5 >&2
         echo "user did not accept the license" >&2
         exit 2
         ;;
