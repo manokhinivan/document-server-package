@@ -23,6 +23,7 @@ DIR="/var/www/onlyoffice"
 LOG_DIR="/var/log/onlyoffice"
 APP_DIR="/var/lib/onlyoffice"
 DEFAULT_CONFIG="/etc/onlyoffice/documentserver/default.json"
+LICENSE_FILE="$DIR/documentserver/LICENSE.txt"
 
 OLD_VERSION="$2"
 
@@ -30,6 +31,8 @@ DB_HOST=""
 DB_USER=""
 DB_PWD=""
 DB_NAME=""
+
+db_capb escape
 
 install_db(){
 	db_get onlyoffice/db-host || true
@@ -59,7 +62,7 @@ install_db(){
 	if [ "$OLD_VERSION" = "" ]; then
 		$MYSQL -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8 COLLATE 'utf8_general_ci';"
 	fi
-	
+
 	$MYSQL "$DB_NAME" < "$DIR/documentserver/server/schema/createdb.sql"
 }
 
@@ -72,13 +75,27 @@ apply_connection_string(){
   $JSON -e "this.services.CoAuthoring.sql.dbPass = '$DB_PWD'"
 }
 
+get_license_type(){
+  LICENSE_NAME=$1
+  case "$LICENSE_NAME" in
+    "Opensource")
+      LICENSE_TYPE=opensource
+      ;;
+    "Commercial")
+      LICENSE_TYPE=integration
+      ;;
+    *)
+      ;;
+  esac
+}
+
 case "$1" in
 	configure)
 		adduser --quiet --home "$DIR" --system --group onlyoffice
 
 		# add nginx user to onlyoffice group to allow access to used unix socket
 		adduser --quiet www-data onlyoffice
-		
+
 		#install node modules
 		npm list -g json >/dev/null 2>&1 || npm install -g json >/dev/null 2>&1
 
@@ -110,6 +127,12 @@ case "$1" in
 		rm -f /etc/nginx/sites-enabled/default
 		mkdir -p /var/cache/nginx/onlyoffice/documentserver
 		chown www-data:www-data /var/cache/nginx/onlyoffice/documentserver
+
+                db_get onlyoffice/license-type
+                get_license_type "$RET"
+
+                db_metaget onlyoffice/${LICENSE_TYPE}-license-notice extended_description
+                echo "$RET" | fmt > $LICENSE_FILE
 
 		# call db_stop to prevent installation hang
 		db_stop
