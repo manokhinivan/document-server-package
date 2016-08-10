@@ -77,6 +77,8 @@ while ! ${IS_LICENSE_ACCEPTED};
         ;;
      5) # exit from script
         echo "user did not accept the license" >&2
+        echo "If you have not seen any proposals to accept a license," >&2
+        echo "try 'dpkg-reconfigure debconf' to select a frontend other than noninteractive" >&2
         exit 2
         ;;
     *)  # unknown state
