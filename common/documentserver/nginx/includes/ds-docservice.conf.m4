@@ -36,6 +36,12 @@ location ~ ^(\/[\d]+\.[\d]+\.[\d]+[\.|-][\d]+)?\/(web-apps|sdkjs|sdkjs-plugins|f
   alias M4_DS_ROOT/$2$3;
 }
 
+location ~ ^(\/[\d]+\.[\d]+\.[\d]+[\.|-][\d]+)?\/(dictionaries)(\/.*)$ {
+  expires 365d;
+  # gzip_static on;
+  alias M4_DS_ROOT/server/SpellChecker/$2$3;
+}
+
 location ~* ^(\/cache\/files.*)(\/.*) {
   alias M4_DS_FILES/App_Data$1;
   add_header Content-Disposition "$arg_disposition; filename*=UTF-8''$arg_filename";
